@@ -7,7 +7,7 @@ on:
 
 jobs:
   build-windows-exe:
-    name: Package Windows Application (for Windows 7)
+    name: Package Windows Application
     runs-on: windows-2022
     permissions:
       contents: write
@@ -35,13 +35,18 @@ jobs:
           --icon=163.ico
           unetease_music_ui.py
 
-      - name: Upload .exe to Release
+      - name: Create ZIP archive for release
+        shell: pwsh
+        run: |
+          Compress-Archive -Path dist/NeteaseMusicDownloader.exe, 163.ico -DestinationPath NeteaseMusicDownloader-Win-${{ github.ref_name }}.zip
+
+      - name: Upload assets to Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: >
           gh release upload
           ${{ github.ref_name }}
-          dist/NeteaseMusicDownloader.exe
+          NeteaseMusicDownloader-Win-${{ github.ref_name }}.zip
 
   build-and-push-ghcr:
     name: Build and Push to GHCR
